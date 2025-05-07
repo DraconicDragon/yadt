@@ -32,7 +32,7 @@ def create_threshold_options(args, include_mcut_checkboxes=True):
                     label="Use MCut threshold for Character Tags",
                 )
         else:
-            general_mcut_enabled = None
-            character_mcut_enabled = None
+            general_mcut_enabled = False
+            character_mcut_enabled = False
 
     return general_thresh, general_mcut_enabled, character_thresh, character_mcut_enabled

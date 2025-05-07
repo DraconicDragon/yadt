@@ -46,9 +46,9 @@ def process_dataset_folder(args):
             folder: str,
             model_repo: str,
             general_thresh: float,
-            # general_mcut_enabled: bool,
+            general_mcut_enabled: bool,
             character_thresh: float,
-            # character_mcut_enabled: bool,
+            character_mcut_enabled: bool,
             replace_underscores: bool,
             trim_general_tag_dupes: bool,
             escape_brackets: bool,
@@ -101,7 +101,7 @@ def process_dataset_folder(args):
             sorted_general_strings, rating, general_res, character_res = \
                 process_prediction.post_process_prediction(
                     rating, general_res, character_res,
-                    # general_thresh, general_mcut_enabled, character_thresh, character_mcut_enabled,
+                    general_thresh, general_mcut_enabled, character_thresh, character_mcut_enabled,
                     general_thresh, False, character_thresh, False,
                     replace_underscores, trim_general_tag_dupes, escape_brackets,
                     prefix_tags, keep_tags, ban_tags, map_tags,
@@ -203,9 +203,9 @@ def load_recent_datasets():
 def load_dataset_settings(args):
     model_repo_default = tagger_shared.default_repo
     general_thresh_default = args.score_general_threshold
-    # general_mcut_enabled_default = 'False'
+    general_mcut_enabled_default = 'False'
     character_thresh_default = args.score_character_threshold
-    # character_mcut_enabled_default = 'False'
+    character_mcut_enabled_default = 'False'
     replace_underscores_default = 'True'
     trim_general_tag_dupes_default = 'True'
     escape_brackets_default = 'False'
@@ -218,9 +218,9 @@ def load_dataset_settings(args):
     @ui_utils.gradio_warning(default=[
         model_repo_default,
         general_thresh_default,
-        # general_mcut_enabled_default,
+        general_mcut_enabled_default,
         character_thresh_default,
-        # character_mcut_enabled_default,
+        character_mcut_enabled_default,
         replace_underscores_default,
         trim_general_tag_dupes_default,
         escape_brackets_default,
@@ -235,9 +235,9 @@ def load_dataset_settings(args):
 
         model_repo = str(db.get_dataset_setting(folder, 'model_repo', default=model_repo_default))
         general_thresh = float(db.get_dataset_setting(folder, 'general_thresh', default=general_thresh_default))
-        # general_mcut_enabled = (db.get_dataset_setting(folder, 'general_mcut_enabled', default=general_mcut_enabled_default)) == 'True'
+        general_mcut_enabled = (db.get_dataset_setting(folder, 'general_mcut_enabled', default=general_mcut_enabled_default)) == 'True'
         character_thresh = float(db.get_dataset_setting(folder, 'character_thresh', default=character_thresh_default))
-        # character_mcut_enabled = (db.get_dataset_setting(folder, 'character_mcut_enabled', default=character_mcut_enabled_default)) == 'True'
+        character_mcut_enabled = (db.get_dataset_setting(folder, 'character_mcut_enabled', default=character_mcut_enabled_default)) == 'True'
         replace_underscores = (db.get_dataset_setting(folder, 'replace_underscores', default=replace_underscores_default)) == 'True'
         trim_general_tag_dupes = (db.get_dataset_setting(folder, 'trim_general_tag_dupes', default=trim_general_tag_dupes_default)) == 'True'
         escape_brackets = (db.get_dataset_setting(folder, 'escape_brackets', default=escape_brackets_default)) == ''
@@ -250,9 +250,9 @@ def load_dataset_settings(args):
         return [
             model_repo,
             general_thresh,
-            # general_mcut_enabled,
+            general_mcut_enabled,
             character_thresh,
-            # character_mcut_enabled,
+            character_mcut_enabled,
             replace_underscores,
             trim_general_tag_dupes,
             escape_brackets,
@@ -271,9 +271,9 @@ def save_dataset_settings(args):
             folder: str,
             model_repo: str,
             general_thresh: float,
-            # general_mcut_enabled: bool,
+            general_mcut_enabled: bool,
             character_thresh: float,
-            # character_mcut_enabled: bool,
+            character_mcut_enabled: bool,
             replace_underscores: bool,
             trim_general_tag_dupes: bool,
             escape_brackets: bool,
@@ -287,9 +287,9 @@ def save_dataset_settings(args):
 
         db.set_dataset_setting(folder, 'model_repo', str(model_repo))
         db.set_dataset_setting(folder, 'general_thresh', str(general_thresh))
-        # db.set_dataset_setting(folder, 'general_mcut_enabled', str(general_mcut_enabled))
+        db.set_dataset_setting(folder, 'general_mcut_enabled', str(general_mcut_enabled))
         db.set_dataset_setting(folder, 'character_thresh', str(character_thresh))
-        # db.set_dataset_setting(folder, 'character_mcut_enabled', str(character_mcut_enabled))
+        db.set_dataset_setting(folder, 'character_mcut_enabled', str(character_mcut_enabled))
         db.set_dataset_setting(folder, 'replace_underscores', str(replace_underscores))
         db.set_dataset_setting(folder, 'trim_general_tag_dupes', str(trim_general_tag_dupes))
         db.set_dataset_setting(folder, 'escape_brackets', str(escape_brackets))
@@ -384,14 +384,12 @@ def ui(args):
                     value=tagger_shared.default_repo,
                     label="Model",
                 )
-
                 (
                     general_thresh,
                     general_mcut_enabled,
                     character_thresh,
                     character_mcut_enabled,
-                ) = create_threshold_options(args, include_mcut_checkboxes=False)
-
+                ) = create_threshold_options(args, include_mcut_checkboxes=True)
 
                 with gr.Row():
                     overwrite_current_caption = gr.Checkbox(
@@ -497,9 +495,9 @@ def ui(args):
             folder,
             model_repo,
             general_thresh,
-            # general_mcut_enabled,
+            general_mcut_enabled,
             character_thresh,
-            # character_mcut_enabled,
+            character_mcut_enabled,
             replace_underscores,
             trim_general_tag_dupes,
             escape_brackets,
@@ -571,9 +569,9 @@ def ui(args):
     dataset_settings = [
         model_repo,
         general_thresh,
-        # general_mcut_enabled,
+        general_mcut_enabled,
         character_thresh,
-        # character_mcut_enabled,
+        character_mcut_enabled,
         replace_underscores,
         trim_general_tag_dupes,
         escape_brackets,
