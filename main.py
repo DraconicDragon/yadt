@@ -40,7 +40,7 @@ def main():
 
         args.tempfolder = tempfolder
 
-        with gr.Blocks(title=TITLE) as demo:
+        with gr.Blocks(title=TITLE, theme=gr.themes.Default(primary_hue=gr.themes.colors.blue, secondary_hue=gr.themes.colors.cyan)) as demo:
             with gr.Column():
                 gr.Markdown(
                     value=f"<h1 style='text-align: center; margin-bottom: 1rem'>{TITLE}</h1>"
