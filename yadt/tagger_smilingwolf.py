@@ -49,15 +49,32 @@ class Predictor:
         self.model = None
 
     def download_model(self, model_repo):
-        csv_path = huggingface_hub.hf_hub_download(
-            model_repo,
-            LABEL_FILENAME,
-        )
-        model_path = huggingface_hub.hf_hub_download(
-            model_repo,
-            MODEL_FILENAME,
-        )
-        return csv_path, model_path
+        import os
+        
+        # Check if model_repo is a local directory path
+        if os.path.isdir(model_repo):
+            # Construct local file paths
+            csv_path = os.path.join(model_repo, LABEL_FILENAME)
+            model_path = os.path.join(model_repo, MODEL_FILENAME)
+            
+            # Check if the files exist
+            if not os.path.isfile(csv_path):
+                raise FileNotFoundError(f"Could not find {LABEL_FILENAME} in {model_repo}")
+            if not os.path.isfile(model_path):
+                raise FileNotFoundError(f"Could not find {MODEL_FILENAME} in {model_repo}")
+                
+            return csv_path, model_path
+        else:
+            # Use huggingface_hub to download the files
+            csv_path = huggingface_hub.hf_hub_download(
+                model_repo,
+                LABEL_FILENAME,
+            )
+            model_path = huggingface_hub.hf_hub_download(
+                model_repo,
+                MODEL_FILENAME,
+            )
+            return csv_path, model_path
 
     def load_model(self, model_repo, **kwargs):
         csv_path, model_path = self.download_model(model_repo)

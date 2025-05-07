@@ -6,6 +6,7 @@ from PIL import Image
 from yadt import tagger_shared
 from yadt import process_prediction
 from yadt.interface import ui_utils
+from yadt.interface.shared.model_selector import create_model_selector
 from yadt.interface.shared.wd_tagger_threshold import create_threshold_options
 
 def temp_folder_gallery_path(args, name: str):
@@ -379,11 +380,8 @@ def ui(args):
 
                 gr.HTML('<p style="margin-top: -1em"><i>Dataset settings are saved on submit. Use the load button to reload them.</i></p>')
 
-                model_repo = gr.Dropdown(
-                    tagger_shared.dropdown_list,
-                    value=tagger_shared.default_repo,
-                    label="Model",
-                )
+                model_repo, custom_model, use_custom_model = create_model_selector()
+                
                 (
                     general_thresh,
                     general_mcut_enabled,

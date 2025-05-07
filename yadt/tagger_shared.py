@@ -11,11 +11,13 @@ class Predictor:
         self.last_loaded_repo = None
         self.model: 'Predictor' = None
 
-    def load_model(self, model_repo: str, **kwargs):
+    def load_model(self, model_repo: str, is_custom_model: bool, **kwargs):
         if self.last_loaded_repo == model_repo:
             return
-        
-        if model_repo.startswith(tagger_smilingwolf.MODEL_REPO_PREFIX):
+
+        print(f"Loading model: {model_repo}")
+
+        if model_repo.startswith(tagger_smilingwolf.MODEL_REPO_PREFIX) or "smilingwolf" in model_repo.lower():
             from yadt.tagger_smilingwolf import Predictor
             self.model = Predictor()
             self.model.load_model(model_repo, **kwargs)
@@ -27,6 +29,18 @@ class Predictor:
             from yadt.tagger_florence2_promptgen import Predictor
             self.model = Predictor()
             self.model.load_model(model_repo, **kwargs)
+        elif is_custom_model:  # Local path support
+            try:
+                from yadt.tagger_smilingwolf import Predictor
+                self.model = Predictor()
+                self.model.load_model(model_repo, **kwargs)
+            except Exception as e:
+                try: 
+                    from yadt.tagger_florence2_promptgen import Predictor
+                    self.model = Predictor()
+                    self.model.load_model(model_repo, **kwargs)
+                except Exception as e2:
+                    raise AssertionError(f"Custom model is not supported: {model_repo}\nError: {str(e)}\nAlso tried as Florence model: {str(e2)}") from e
         else:
             raise AssertionError("Model is not supported: " + model_repo)
         

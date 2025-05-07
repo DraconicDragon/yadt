@@ -5,6 +5,7 @@ from PIL import Image
 from yadt import tagger_shared
 from yadt import process_prediction
 from yadt.interface import ui_utils
+from yadt.interface.shared.model_selector import create_model_selector
 from yadt.interface.shared.wd_tagger_threshold import create_threshold_options
 
 def predict(args):
@@ -12,6 +13,8 @@ def predict(args):
     def _predict(
             image: Image,
             model_repo: str,
+            custom_model: str,
+            use_custom_model: bool,
             general_thresh: float,
             general_mcut_enabled: bool,
             character_thresh: float,
@@ -21,8 +24,11 @@ def predict(args):
             escape_brackets: bool,
     ):
         assert image is not None, "No image selected"
-
-        tagger_shared.predictor.load_model(model_repo, device=args.device)
+        
+        if use_custom_model:
+            model_repo = custom_model
+        
+        tagger_shared.predictor.load_model(model_repo, is_custom_model=use_custom_model, device=args.device)
 
         return process_prediction.post_process_prediction(
             *tagger_shared.predictor.predict(image),
@@ -37,11 +43,9 @@ def ui(args):
     with gr.Row():
         with gr.Column(variant="panel"):
             image = gr.Image(type="pil", image_mode="RGBA", label="Input")
-            model_repo = gr.Dropdown(
-                tagger_shared.dropdown_list,
-                value=tagger_shared.default_repo,
-                label="Model",
-            )
+            
+            model_repo, custom_model, use_custom_model = create_model_selector()
+            
             (
                 general_thresh,
                 general_mcut_enabled,
@@ -70,6 +74,8 @@ def ui(args):
                     components=[
                         image,
                         model_repo,
+                        custom_model,
+                        use_custom_model,
                         general_thresh,
                         general_mcut_enabled,
                         character_thresh,
@@ -100,6 +106,8 @@ def ui(args):
         inputs=[
             image,
             model_repo,
+            custom_model,
+            use_custom_model,
             general_thresh,
             general_mcut_enabled,
             character_thresh,
