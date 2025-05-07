@@ -5,6 +5,7 @@ from PIL import Image
 from yadt import tagger_shared
 from yadt import process_prediction
 from yadt.interface import ui_utils
+from yadt.interface.shared.wd_tagger_threshold import create_threshold_options
 
 def predict(args):
     @ui_utils.gradio_error
@@ -41,34 +42,13 @@ def ui(args):
                 value=tagger_shared.default_repo,
                 label="Model",
             )
-            with gr.Row():
-                general_thresh = gr.Slider(
-                    0,
-                    1,
-                    step=args.score_slider_step,
-                    value=args.score_general_threshold,
-                    label="General Tags Threshold",
-                    scale=3,
-                )
-                general_mcut_enabled = gr.Checkbox(
-                    value=False,
-                    label="Use MCut threshold",
-                    scale=1,
-                )
-            with gr.Row():
-                character_thresh = gr.Slider(
-                    0,
-                    1,
-                    step=args.score_slider_step,
-                    value=args.score_character_threshold,
-                    label="Character Tags Threshold",
-                    scale=3,
-                )
-                character_mcut_enabled = gr.Checkbox(
-                    value=False,
-                    label="Use MCut threshold",
-                    scale=1,
-                )
+            (
+                general_thresh,
+                general_mcut_enabled,
+                character_thresh,
+                character_mcut_enabled,
+            ) = create_threshold_options(args, include_mcut_checkboxes=True)
+
             with gr.Row():
                 replace_underscores = gr.Checkbox(
                     value=True,

@@ -6,6 +6,7 @@ from PIL import Image
 from yadt import tagger_shared
 from yadt import process_prediction
 from yadt.interface import ui_utils
+from yadt.interface.shared.wd_tagger_threshold import create_threshold_options
 
 def temp_folder_gallery_path(args, name: str):
     return f'{args.tempfolder}/{name}.jpeg'
@@ -384,24 +385,13 @@ def ui(args):
                     label="Model",
                 )
 
-                with gr.Row():
-                    general_thresh = gr.Slider(
-                        0,
-                        1,
-                        step=args.score_slider_step,
-                        value=args.score_general_threshold,
-                        label="General Tags Threshold",
-                        scale=3,
-                    )
+                (
+                    general_thresh,
+                    general_mcut_enabled,
+                    character_thresh,
+                    character_mcut_enabled,
+                ) = create_threshold_options(args, include_mcut_checkboxes=False)
 
-                    character_thresh = gr.Slider(
-                        0,
-                        1,
-                        step=args.score_slider_step,
-                        value=args.score_character_threshold,
-                        label="Character Tags Threshold",
-                        scale=3,
-                    )
 
                 with gr.Row():
                     overwrite_current_caption = gr.Checkbox(
@@ -447,9 +437,9 @@ def ui(args):
                             folder,
                             model_repo,
                             general_thresh,
-                            # general_mcut_enabled,
+                            general_mcut_enabled,
                             character_thresh,
-                            # character_mcut_enabled,
+                            character_mcut_enabled,
                             replace_underscores,
                             trim_general_tag_dupes,
                             escape_brackets,
