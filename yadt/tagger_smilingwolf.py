@@ -26,6 +26,7 @@ VIT_MODEL_DSV2_REPO = "SmilingWolf/wd-v1-4-vit-tagger-v2"
 MODEL_FILENAME = "model.onnx"
 LABEL_FILENAME = "selected_tags.csv"
 
+
 def load_labels(dataframe) -> List[str]:
     name_series = dataframe["name"]
     tag_names = name_series.tolist()
@@ -50,19 +51,19 @@ class Predictor:
 
     def download_model(self, model_repo):
         import os
-        
+
         # Check if model_repo is a local directory path
         if os.path.isdir(model_repo):
             # Construct local file paths
             csv_path = os.path.join(model_repo, LABEL_FILENAME)
             model_path = os.path.join(model_repo, MODEL_FILENAME)
-            
+
             # Check if the files exist
             if not os.path.isfile(csv_path):
                 raise FileNotFoundError(f"Could not find {LABEL_FILENAME} in {model_repo}")
             if not os.path.isfile(model_path):
                 raise FileNotFoundError(f"Could not find {MODEL_FILENAME} in {model_repo}")
-                
+
             return csv_path, model_path
         else:
             # Use huggingface_hub to download the files

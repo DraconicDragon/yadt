@@ -7,13 +7,22 @@ from dataclasses import dataclass
 from collections import deque
 from threading import Condition, Semaphore, Thread, Lock
 
+
 @dataclass
 class PoolConnection:
     last_used: float
     connection: sqlite3.Connection
 
+
 class Sqlite3DBPool:
-    def __init__(self, database: str, default_timeout: float = 10, idle_timeout: float = 30, max_connections: int = 10, **pragmas: str):
+    def __init__(
+        self,
+        database: str,
+        default_timeout: float = 10,
+        idle_timeout: float = 30,
+        max_connections: int = 10,
+        **pragmas: str,
+    ):
         self._database = database
         self._max_connections = max_connections
         self._idle_timeout = idle_timeout
@@ -26,8 +35,8 @@ class Sqlite3DBPool:
         self._connections_open_cv = Condition()
         self._connection_pool: deque[PoolConnection] = deque()
         self._connection_pool_lock = Lock()
-        
-        self._cleanup_thread = Thread(name=f'Sqlite3DBPool._cleanup', target=self._cleanup, daemon=True)
+
+        self._cleanup_thread = Thread(name=f"Sqlite3DBPool._cleanup", target=self._cleanup, daemon=True)
         self._cleanup_thread.start()
 
     @contextmanager
@@ -39,12 +48,12 @@ class Sqlite3DBPool:
 
         with self._connections_open_cv:
             while not self._connections_open:
-                if not self._connections_open_cv.wait(timeout=max(0, timeout_t-time.time())):
-                    raise TimeoutError('Could not aquire database connection')
+                if not self._connections_open_cv.wait(timeout=max(0, timeout_t - time.time())):
+                    raise TimeoutError("Could not aquire database connection")
 
-        if not self._connection_sem.acquire(timeout=max(0, timeout_t-time.time())):
-            raise TimeoutError('Could not aquire database connection')
-        
+        if not self._connection_sem.acquire(timeout=max(0, timeout_t - time.time())):
+            raise TimeoutError("Could not aquire database connection")
+
         try:
             pool_item = None
 
@@ -55,7 +64,7 @@ class Sqlite3DBPool:
                     connection = sqlite3.connect(self._database, check_same_thread=False)
 
                     for pragma, value in self._pragmas.items():
-                        connection.execute(f'pragma {pragma} = {value}')
+                        connection.execute(f"pragma {pragma} = {value}")
 
                     pool_item = PoolConnection(last_used=time.time(), connection=connection)
                     self._connection_count += 1
@@ -81,7 +90,6 @@ class Sqlite3DBPool:
             self._connections_open = True
             self._connections_open_cv.notify_all()
 
-
     def close(self):
         with self._connections_open_cv:
             self._connections_open = False
@@ -95,7 +103,7 @@ class Sqlite3DBPool:
         self._connection_sem.release()
         self._cleanup_connections(all=True)
         self._connection_sem.acquire()
-        
+
     def _cleanup(self):
         import time
 
@@ -110,7 +118,7 @@ class Sqlite3DBPool:
                 self._cleanup_connections()
         except KeyboardInterrupt:
             return
-    
+
     def _cleanup_connections(self, all: bool = False):
         removed_connections: list[PoolConnection] = []
         cleaned_up_connections: list[PoolConnection] = []

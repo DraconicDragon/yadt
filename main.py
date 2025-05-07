@@ -7,6 +7,7 @@ DESCRIPTION = """
 <center>models are 90% data, 10% training</center>
 """
 
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="127.0.0.1")
@@ -28,23 +29,24 @@ def main():
 
     if args.device == "auto":
         import torch
+
         if torch.cuda.is_available():
-            args.device = 'cuda:0'
+            args.device = "cuda:0"
         else:
-            args.device = 'cpu'
+            args.device = "cpu"
 
-    print('* Using device:', args.device)
+    print("* Using device:", args.device)
 
-    with tempfile.TemporaryDirectory(suffix='-yadt') as tempfolder:
-        print('* Using temporary folder:', tempfolder)
+    with tempfile.TemporaryDirectory(suffix="-yadt") as tempfolder:
+        print("* Using temporary folder:", tempfolder)
 
         args.tempfolder = tempfolder
 
-        with gr.Blocks(title=TITLE, theme=gr.themes.Default(primary_hue=gr.themes.colors.blue, secondary_hue=gr.themes.colors.cyan)) as demo:
+        with gr.Blocks(
+            title=TITLE, theme=gr.themes.Default(primary_hue=gr.themes.colors.blue, secondary_hue=gr.themes.colors.cyan)
+        ) as demo:
             with gr.Column():
-                gr.Markdown(
-                    value=f"<h1 style='text-align: center; margin-bottom: 1rem'>{TITLE}</h1>"
-                )
+                gr.Markdown(value=f"<h1 style='text-align: center; margin-bottom: 1rem'>{TITLE}</h1>")
                 gr.Markdown(value=DESCRIPTION)
 
                 with gr.Tabs():

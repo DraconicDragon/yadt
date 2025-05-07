@@ -78,12 +78,12 @@ class Predictor:
             full_model = model_repo == CAMIE_MODEL_FULL
             metadata_path, model_info_path, state_dict_path = self.download_model(CAMIE_MODEL_FULL, full_model)
 
-        device = kwargs.pop('device', 'cpu')
+        device = kwargs.pop("device", "cpu")
 
         from yadt.tagger_camie_model import load_model
 
         self.model, _, _ = load_model(
-            '.',
+            ".",
             full=full_model,
             metadata_path=metadata_path,
             model_info_path=model_info_path,
@@ -95,6 +95,8 @@ class Predictor:
         assert self.model is not None, "No model loaded"
 
         results = self.model.predict(image)
-        tags = self.model.get_tags_from_predictions(results['predictions'], probabilities=results['refined_probabilities'])
+        tags = self.model.get_tags_from_predictions(
+            results["predictions"], probabilities=results["refined_probabilities"]
+        )
 
-        return dict(tags['rating']), dict(tags['general']), dict(tags['character'])
+        return dict(tags["rating"]), dict(tags["general"]), dict(tags["character"])

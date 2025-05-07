@@ -26,25 +26,27 @@ kaomojis = {
     "||_||",
 }
 
+
 @functools.lru_cache(maxsize=102400)
 def _replace_underscore_for_tag(tag):
-    return tag.replace('_', ' ') if tag not in kaomojis else tag
+    return tag.replace("_", " ") if tag not in kaomojis else tag
+
 
 def post_process_prediction(
-        rating: Dict[str, float],
-        general_res: Dict[str, float],
-        character_res: Dict[str, float],
-        general_thresh: float,
-        general_mcut_enabled: bool,
-        character_thresh: float,
-        character_mcut_enabled: bool,
-        replace_underscores: bool,
-        trim_general_tag_dupes: bool,
-        escape_brackets: bool,
-        prefix_tags: str = None,
-        keep_tags: str = None,
-        ban_tags: str = None,
-        map_tags: str = None,
+    rating: Dict[str, float],
+    general_res: Dict[str, float],
+    character_res: Dict[str, float],
+    general_thresh: float,
+    general_mcut_enabled: bool,
+    character_thresh: float,
+    character_mcut_enabled: bool,
+    replace_underscores: bool,
+    trim_general_tag_dupes: bool,
+    escape_brackets: bool,
+    prefix_tags: str = None,
+    keep_tags: str = None,
+    ban_tags: str = None,
+    map_tags: str = None,
 ):
     def _threshold(tags: List[Tuple[str, float]], t: float, mcut: bool):
         def mcut_threshold(probs):
@@ -63,16 +65,14 @@ def post_process_prediction(
         if mcut:
             probs = np.array([x[1] for x in tags])
             t = max(t, mcut_threshold(probs))
-        
+
         return [x for x in tags if x[1] >= t]
 
     def _replace_underscore(tags: List[Tuple[str, float]]):
         if not replace_underscores:
             return tags
 
-        return [
-            [ _replace_underscore_for_tag(tag), prob] for tag, prob in tags
-        ]
+        return [[_replace_underscore_for_tag(tag), prob] for tag, prob in tags]
 
     def _generate_string(character_res: List[Tuple[str, float]], general_res: List[Tuple[str, float]]):
         character_res = character_res
@@ -88,13 +88,13 @@ def post_process_prediction(
         sorted_tags = sorted(sorted_tags, key=lambda x: x[1], reverse=True)
 
         sorted_tags = list(map(lambda x: x[0], sorted_tags))
-        generated_string = ', '.join(sorted_tags)
+        generated_string = ", ".join(sorted_tags)
 
         if escape_brackets:
             generated_string = generated_string.replace("(", "\\(").replace(")", "\\)")
 
         return generated_string
-    
+
     def _trim_general_tag_dupes(tags: List[Tuple[str, float]]):
         if not trim_general_tag_dupes:
             return tags
@@ -118,14 +118,14 @@ def post_process_prediction(
                 tag_words = tag.split()
                 len_tag_words = len(tag_words)
 
-                for i in range(len(search_tag_words)-len_tag_words+1):
-                    if tag_words == search_tag_words[i:len_tag_words+i]:
+                for i in range(len(search_tag_words) - len_tag_words + 1):
+                    if tag_words == search_tag_words[i : len_tag_words + i]:
                         return True
 
                 return False
 
             return _matches_tag
-        
+
         tags_new = list(tags)
 
         removed = True
@@ -150,10 +150,10 @@ def post_process_prediction(
     def _prefix_tokens(tags: List[Tuple[str, float]]):
         if prefix_tags is None:
             return tags
-        
+
         tags_new: List[Tuple[str, float]] = []
 
-        prefix_tags_list = list(filter(lambda t: len(t) > 0, map(lambda t: t.strip(), prefix_tags.split(','))))
+        prefix_tags_list = list(filter(lambda t: len(t) > 0, map(lambda t: t.strip(), prefix_tags.split(","))))
         max_prob = max(([0] + list(map(lambda t: t[1], tags))))
 
         for i, tag in enumerate(reversed(prefix_tags_list)):
@@ -169,7 +169,7 @@ def post_process_prediction(
 
         tags_new: List[Tuple[str, float]] = []
 
-        keep_tags_list = list(filter(lambda t: len(t) > 0, map(lambda t: t.strip(), keep_tags.split(','))))
+        keep_tags_list = list(filter(lambda t: len(t) > 0, map(lambda t: t.strip(), keep_tags.split(","))))
         max_prob = max(([0] + list(map(lambda t: t[1], tags))))
 
         for tag, prob in tags:
@@ -177,18 +177,18 @@ def post_process_prediction(
                 prob = 5.0 + (1.0 - keep_tags_list.index(tag) / len(keep_tags_list))
 
             tags_new.append((tag, prob))
-        
-        tags_new.append(('BREAK', max_prob + 1.0))
+
+        tags_new.append(("BREAK", max_prob + 1.0))
         # print('keep_tokens', tags_new)
         return tags_new
 
     def _ban_tokens(tags: List[Tuple[str, float]]):
         if ban_tags is None:
             return tags
-        
+
         tags_new: List[Tuple[str, float]] = []
 
-        ban_tags_list = list(map(lambda t: t.strip(), ban_tags.split(',')))
+        ban_tags_list = list(map(lambda t: t.strip(), ban_tags.split(",")))
 
         for tag, prob in tags:
             if tag in ban_tags_list:
@@ -199,15 +199,17 @@ def post_process_prediction(
         # print('ban_tokens', tags_new)
         return tags_new
 
-
     def _map_tokens(tags: List[Tuple[str, float]]):
         if map_tags is None:
             return tags
 
         import re
+
         line_re = re.compile("^(\\s*|(.+):(.+))$")
 
-        assert all(map(lambda s: line_re.match(s) is not None, map_tags.splitlines())), "Map tokens is not valid: expected lines of format: token, token, ... : token"
+        assert all(
+            map(lambda s: line_re.match(s) is not None, map_tags.splitlines())
+        ), "Map tokens is not valid: expected lines of format: token, token, ... : token"
 
         map_tags_dict: Dict[str, List[str]] = {}
 
@@ -218,9 +220,9 @@ def post_process_prediction(
                 continue
 
             to_token = to_token.strip()
-            to_token = list(map(lambda t: t.strip(), to_token.split(',')))
+            to_token = list(map(lambda t: t.strip(), to_token.split(",")))
 
-            for token in tokens.split(','):
+            for token in tokens.split(","):
                 map_tags_dict[token.strip()] = to_token
 
         # print('map_tags_dict', map_tags_dict)
@@ -257,28 +259,25 @@ def post_process_prediction(
             if not has_mapped_a_tag:
                 break
         else:
-            raise AssertionError('token mapping likely contains a recursion')
+            raise AssertionError("token mapping likely contains a recursion")
 
         # print('map_tokens', tags_new)
         return tags_new
 
-
     def _clean_ratings(items: List[Tuple[str, float]]):
         items_new = []
         for k, v in items:
-            items_new.append([ k.removeprefix('rating_'), v])
+            items_new.append([k.removeprefix("rating_"), v])
         return items_new
-
 
     # print('character_res', len(character_res.items()), len(_replace_underscore(_threshold(character_res.items(), character_thresh, character_mcut_enabled))))
     # print('general_res', len(general_res.items()), len(_replace_underscore(_threshold(general_res.items(), general_thresh, general_mcut_enabled))))
 
-    
     character_res = _replace_underscore(character_res.items())
     general_res = _replace_underscore(general_res.items())
 
-    character_tags = set([ k for k, _ in character_res ])
-    general_tags = set([ k for k, _ in general_res ])
+    character_tags = set([k for k, _ in character_res])
+    general_tags = set([k for k, _ in general_res])
 
     character_res = _threshold(character_res, character_thresh, character_mcut_enabled)
     general_res = _trim_general_tag_dupes(_threshold(general_res, general_thresh, general_mcut_enabled))
@@ -286,7 +285,7 @@ def post_process_prediction(
     tag_string = _generate_string(character_res, general_res)
 
     rating = _clean_ratings(rating.items())
-    
+
     # recreate results to match the changes
 
     tag_res = list(character_res) + list(general_res)
@@ -295,15 +294,16 @@ def post_process_prediction(
     tag_res = _ban_tokens(tag_res)
     tag_res = sorted(tag_res, key=lambda x: x[1], reverse=True)
 
-    character_res = [ (k, v) for k, v in tag_res if k in character_tags ]
-    general_res = [ (k, v) for k, v in tag_res if k in general_tags ]
+    character_res = [(k, v) for k, v in tag_res if k in character_tags]
+    general_res = [(k, v) for k, v in tag_res if k in general_tags]
 
     return tag_string, dict(rating), dict(general_res), dict(character_res)
 
+
 def post_process_manual_edits(
-        initial_tags: str,
-        edited_tags: str,
-        new_tags: str,
+    initial_tags: str,
+    edited_tags: str,
+    new_tags: str,
 ):
     import difflib
 
@@ -329,47 +329,46 @@ def post_process_manual_edits(
                     merged.append(c_initial)
                     i_initial += 1
                     i_new += 1
-                case (False, '  ', _):
+                case (False, "  ", _):
                     merged.append(c_new)
                     i_new += 1
-                case (False, _, '  '):
+                case (False, _, "  "):
                     merged.append(c_initial)
                     i_initial += 1
-                case (False, '+ ', '+ '):
+                case (False, "+ ", "+ "):
                     merged.append(c_initial)
                     i_initial += 1
-                case (False, '+ ', '- '):
-                    merged.append(c_new)
-                    merged.append(c_initial)
-                    i_initial += 1
-                    i_new += 1
-                case (False, '- ', '+ '):
+                case (False, "+ ", "- "):
                     merged.append(c_new)
                     merged.append(c_initial)
                     i_initial += 1
                     i_new += 1
-                case (False, '- ', '- '):
+                case (False, "- ", "+ "):
+                    merged.append(c_new)
+                    merged.append(c_initial)
+                    i_initial += 1
+                    i_new += 1
+                case (False, "- ", "- "):
                     merged.append(c_initial)
                     merged.append(c_new)
                     i_initial += 1
                     i_new += 1
-        
-        
+
         for i in range(i_initial, l_initial):
             merged.append(initial[i])
 
         for i in range(i_new, l_new):
             merged.append(new[i])
-        
+
         return merged
-    
-    initial_tags = [tag.strip() for tag in initial_tags.split(',')]
-    edited_tags = [tag.strip() for tag in edited_tags.split(',')]
-    new_tags = [tag.strip() for tag in new_tags.split(',')]
+
+    initial_tags = [tag.strip() for tag in initial_tags.split(",")]
+    edited_tags = [tag.strip() for tag in edited_tags.split(",")]
+    new_tags = [tag.strip() for tag in new_tags.split(",")]
 
     diff_initial = list(difflib.ndiff(initial_tags, edited_tags))
     diff_new = list(difflib.ndiff(initial_tags, new_tags))
 
     diff_after = merge_diffs(diff_initial, diff_new)
 
-    return ', '.join(difflib.restore(diff_after, 2))
+    return ", ".join(difflib.restore(diff_after, 2))

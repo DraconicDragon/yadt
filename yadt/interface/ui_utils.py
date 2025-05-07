@@ -1,7 +1,8 @@
 import re
 import gradio as gr
 
-NO_DROPDOWN_SELECTION = '(None)'
+NO_DROPDOWN_SELECTION = "(None)"
+
 
 def gradio_error(fn):
     import traceback
@@ -14,10 +15,12 @@ def gradio_error(fn):
         except Exception as e:
             traceback.print_exc()
             raise gr.Error(str(e), print_exception=False) from e
-    
+
     return fn_wrapper
 
+
 NO_DEFAULT = object()
+
 
 def gradio_warning(*args, default=NO_DEFAULT):
     def _gradio_warning(fn):
@@ -34,7 +37,7 @@ def gradio_warning(*args, default=NO_DEFAULT):
             except Exception as e:
                 gr.Warning(str(e))
                 traceback.print_exc()
-                
+
                 if default is not NO_DEFAULT:
                     return default
 
@@ -45,14 +48,16 @@ def gradio_warning(*args, default=NO_DEFAULT):
 
     return _gradio_warning
 
-def human_readable_bytes(size: int, units = ['B', 'KiB', 'MiB', 'GiB', 'TiB']):
+
+def human_readable_bytes(size: int, units=["B", "KiB", "MiB", "GiB", "TiB"]):
     for unit in units:
         if size < 1024:
-            return f'{size:.2f} {unit}'
-        
+            return f"{size:.2f} {unit}"
+
         size /= 1024
     else:
-        return f'{size:.2f} {unit}'
+        return f"{size:.2f} {unit}"
 
-_RE_NUMERIC_ = re.compile('([0-9]+)')
+
+_RE_NUMERIC_ = re.compile("([0-9]+)")
 natural_sort = lambda key: [int(c) if c.isdigit() else c.lower() for c in _RE_NUMERIC_.split(key)]

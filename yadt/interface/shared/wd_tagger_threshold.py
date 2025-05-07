@@ -1,5 +1,6 @@
 import gradio as gr
 
+
 def create_threshold_options(args, include_mcut_checkboxes=True):
     """
     Creates and returns Gradio sliders and optionally checkboxes for general and character thresholds.
@@ -20,7 +21,7 @@ def create_threshold_options(args, include_mcut_checkboxes=True):
                 value=args.score_character_threshold,
                 label="Character Tags Threshold",
             )
-        
+
         if include_mcut_checkboxes:
             with gr.Row():
                 general_mcut_enabled = gr.Checkbox(
