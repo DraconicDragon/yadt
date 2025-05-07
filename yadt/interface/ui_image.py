@@ -4,7 +4,7 @@ from PIL import Image
 
 from yadt import tagger_shared
 from yadt import process_prediction
-from yadt import ui_utils
+from yadt.interface import ui_utils
 
 def predict(args):
     @ui_utils.gradio_error
