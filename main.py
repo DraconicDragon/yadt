@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
 def main():
     import tempfile
 
-    from yadt import ui_image, ui_dataset, ui_misc
+    from yadt.interface import ui_image, ui_dataset, ui_misc
 
     args = parse_args()
 
