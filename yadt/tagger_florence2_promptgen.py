@@ -16,22 +16,29 @@ class Predictor:
 
     def load_model(self, model_repo: str, **kwargs):
         self.device = kwargs.pop('device', None)
+        import os
 
         from yadt.tagger_florence2_promptgen_model import load_model
 
-        if model_repo == FLORENCE2_PROMPTGEN_LARGE:
-            repo_name = "MiaoshouAI/Florence-2-large-PromptGen-v2.0"
-            revision = "4aa33eaf50aab040fe8523312ff52eb53322c220"
-        elif model_repo == FLORENCE2_PROMPTGEN_BASE:
-            repo_name = "MiaoshouAI/Florence-2-base-PromptGen-v2.0"
-            revision = "59b6e4bf75d0f3e8a6b1a14211f6a50fcdd48d63"
+        # Check if model_repo is a local directory
+        if os.path.isdir(model_repo):
+            # For local models, pass the directory directly
+            self.model, self.processor = load_model(local_dir=model_repo, device=self.device)
         else:
-            raise AssertionError(f"Unsupported model repo: {model_repo}")
-        
-        self.model, self.processor = load_model(repo_name=repo_name, revision=revision)
+            # Regular HuggingFace model loading
+            if model_repo == FLORENCE2_PROMPTGEN_LARGE:
+                repo_name = "MiaoshouAI/Florence-2-large-PromptGen-v2.0"
+                revision = "4aa33eaf50aab040fe8523312ff52eb53322c220"
+            elif model_repo == FLORENCE2_PROMPTGEN_BASE:
+                repo_name = "MiaoshouAI/Florence-2-base-PromptGen-v2.0"
+                revision = "59b6e4bf75d0f3e8a6b1a14211f6a50fcdd48d63"
+            else:
+                raise AssertionError(f"Unsupported model repo: {model_repo}")
+            
+            self.model, self.processor = load_model(repo_name=repo_name, revision=revision)
 
-        if self.device is not None:
-            self.model.to(self.device)
+            if self.device is not None:
+                self.model.to(self.device)
 
     def predict(self, image: Image):
         assert self.model is not None, "No model loaded"

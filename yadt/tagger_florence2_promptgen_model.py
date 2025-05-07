@@ -1,11 +1,36 @@
 def load_model(device='cpu', **kwargs):
     from transformers import AutoModelForCausalLM, AutoProcessor
+    import os
 
-    repo_name = kwargs.pop('repo_name', 'MiaoshouAI/Florence-2-large-PromptGen-v2.0')
-    revision = kwargs.pop('revision', "4aa33eaf50aab040fe8523312ff52eb53322c220")
-
-    model = AutoModelForCausalLM.from_pretrained(repo_name, revision=revision, trust_remote_code=True)
-    processor = AutoProcessor.from_pretrained(repo_name, revision=revision, trust_remote_code=True)
+    # Check if a local directory is provided
+    local_dir = kwargs.pop('local_dir', None)
+    
+    if local_dir and os.path.isdir(local_dir):
+        # Load from local directory
+        model = AutoModelForCausalLM.from_pretrained(
+            local_dir, 
+            trust_remote_code=True,
+            device_map=device
+        )
+        processor = AutoProcessor.from_pretrained(
+            local_dir, 
+            trust_remote_code=True
+        )
+    else:
+        # Regular HuggingFace model loading
+        repo_name = kwargs.pop('repo_name', 'MiaoshouAI/Florence-2-large-PromptGen-v2.0')
+        revision = kwargs.pop('revision', "4aa33eaf50aab040fe8523312ff52eb53322c220")
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            repo_name, 
+            revision=revision, 
+            trust_remote_code=True
+        )
+        processor = AutoProcessor.from_pretrained(
+            repo_name, 
+            revision=revision, 
+            trust_remote_code=True
+        )
 
     return model, processor
 

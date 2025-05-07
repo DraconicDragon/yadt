@@ -14,10 +14,10 @@ class Predictor:
     def load_model(self, model_repo: str, is_custom_model: bool, **kwargs):
         if self.last_loaded_repo == model_repo:
             return
-
+        errors = []
         print(f"Loading model: {model_repo}")
 
-        if model_repo.startswith(tagger_smilingwolf.MODEL_REPO_PREFIX) or "smilingwolf" in model_repo.lower():
+        if model_repo.startswith(tagger_smilingwolf.MODEL_REPO_PREFIX):
             from yadt.tagger_smilingwolf import Predictor
             self.model = Predictor()
             self.model.load_model(model_repo, **kwargs)
@@ -30,17 +30,22 @@ class Predictor:
             self.model = Predictor()
             self.model.load_model(model_repo, **kwargs)
         elif is_custom_model:  # Local path support
-            try:
-                from yadt.tagger_smilingwolf import Predictor
-                self.model = Predictor()
-                self.model.load_model(model_repo, **kwargs)
-            except Exception as e:
-                try: 
-                    from yadt.tagger_florence2_promptgen import Predictor
-                    self.model = Predictor()
+            for module_path in [
+            "yadt.tagger_smilingwolf",
+            "yadt.tagger_camie",
+            "yadt.tagger_florence2_promptgen"
+            ]:
+                try:
+                    module = __import__(module_path, fromlist=["Predictor"])
+                    self.model = module.Predictor()
                     self.model.load_model(model_repo, **kwargs)
-                except Exception as e2:
-                    raise AssertionError(f"Custom model is not supported: {model_repo}\nError: {str(e)}\nAlso tried as Florence model: {str(e2)}") from e
+                    break
+                except Exception as e:
+                    errors.append(f"{module_path}: {str(e)}")
+            else:
+                raise AssertionError(
+                    f"Custom model is not supported: {model_repo}\nErrors: " + "\n".join(errors)
+                )
         else:
             raise AssertionError("Model is not supported: " + model_repo)
         
