@@ -5,7 +5,7 @@ from PIL import Image
 
 from yadt import tagger_shared
 from yadt import process_prediction
-from yadt import ui_utils
+from yadt.interface import ui_utils
 
 def temp_folder_gallery_path(args, name: str):
     return f'{args.tempfolder}/{name}.jpeg'

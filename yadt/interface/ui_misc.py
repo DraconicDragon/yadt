@@ -1,6 +1,6 @@
 import gradio as gr
 
-from yadt import ui_utils
+from yadt.interface import ui_utils
 from yadt.db_dataset import db
 
 
